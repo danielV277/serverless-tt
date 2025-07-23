@@ -1,0 +1,10 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "singleBucket"
+region = "us-east-1"
+
+[default.sync.parameters]
+template_file = "d:\\talento-tech\\serverless\\api.yml"
+dependency_layer = false
+watch = true
