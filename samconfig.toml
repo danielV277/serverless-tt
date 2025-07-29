@@ -5,6 +5,6 @@ stack_name = "singleBucket"
 region = "us-east-1"
 
 [default.sync.parameters]
-template_file = "d:\\talento-tech\\serverless\\api.yml"
+template_file = "d:\\arquitectura en la nube\\serverless-tt\\api.yml"
 dependency_layer = false
 watch = true

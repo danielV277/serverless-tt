@@ -3,7 +3,8 @@ Resources:
   Api:
     Type: AWS::Serverless::Api
     Properties:
-      Name: !Sub
+      Name:
+        Fn::Sub:
         - ${ResourceName} From Stack ${AWS::StackName}
         - ResourceName: Api
       StageName: Prod
@@ -16,13 +17,15 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateBooks.Arn}/invocations
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateBooks.Arn}/invocations
               responses: {}
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ObtenerLibros.Arn}/invocations
+                uri:
+                  Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ObtenerLibros.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
@@ -31,10 +34,11 @@ Resources:
   CreateBooks:
     Type: AWS::Serverless::Function
     Properties:
-      Description: !Sub
+      Description:
+        Fn::Sub:
         - Stack ${AWS::StackName} Function ${ResourceName}
         - ResourceName: CreateBooks
-      CodeUri: src/CreateBooks
+      CodeUri: CreateBooks
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 3008
@@ -42,42 +46,52 @@ Resources:
       Tracing: Active
       Environment:
         Variables:
-          BOOKS_TABLE_NAME: !Ref Books
-          BOOKS_TABLE_ARN: !GetAtt Books.Arn
+          BOOKS_TABLE_NAME:
+            Ref: Books
+          BOOKS_TABLE_ARN:
+            Fn::GetAtt:
+            - Books
+            - Arn
       Events:
         ApiPOSTBooks:
           Type: Api
           Properties:
             Path: /Books
             Method: POST
-            RestApiId: !Ref Api
+            RestApiId:
+              Ref: Api
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref Books
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: Books
+    Metadata:
+      SamResourceId: CreateBooks
   CreateBooksLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
     Properties:
-      LogGroupName: !Sub /aws/lambda/${CreateBooks}
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${CreateBooks}
   Books:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
+      - AttributeName: id
+        AttributeType: S
       BillingMode: PAY_PER_REQUEST
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+      - AttributeName: id
+        KeyType: HASH
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
   ObtenerLibros:
     Type: AWS::Serverless::Function
     Properties:
-      Description: !Sub
+      Description:
+        Fn::Sub:
         - Stack ${AWS::StackName} Function ${ResourceName}
         - ResourceName: ObtenerLibros
-      CodeUri: src/ObtenerLibros
+      CodeUri: ObtenerLibros
       Handler: index.handler
       Runtime: nodejs22.x
       MemorySize: 3008
@@ -85,20 +99,29 @@ Resources:
       Tracing: Active
       Environment:
         Variables:
-          BOOKS_TABLE_NAME: !Ref Books
-          BOOKS_TABLE_ARN: !GetAtt Books.Arn
+          BOOKS_TABLE_NAME:
+            Ref: Books
+          BOOKS_TABLE_ARN:
+            Fn::GetAtt:
+            - Books
+            - Arn
       Events:
         ApiGETBooks:
           Type: Api
           Properties:
             Path: /Books
             Method: GET
-            RestApiId: !Ref Api
+            RestApiId:
+              Ref: Api
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref Books
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: Books
+    Metadata:
+      SamResourceId: ObtenerLibros
   ObtenerLibrosLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
     Properties:
-      LogGroupName: !Sub /aws/lambda/${ObtenerLibros}
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${ObtenerLibros}
